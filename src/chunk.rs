@@ -1,7 +1,7 @@
 use std::fmt::Write;
 
 use crate::instruction::Instruction;
-use crate::opcode::OpCode;
+use crate::opcode::{OpCode, UnaryOp};
 use crate::value::Value;
 
 pub struct Chunk {
@@ -35,6 +35,14 @@ impl Chunk {
         self.lines.push(line);
     }
 
+    pub fn access(&self, index: usize) -> Option<&Instruction> {
+        self.code.get(index)
+    }
+
+    pub fn access_constant(&self, index: usize) -> Option<&f32> {
+        self.constants.get(index)
+    }
+
     pub fn disassemble(&self, name: &str) {
         let mut output = format!("=={}==\n", name);
         let mut offset = 0;
@@ -46,7 +54,7 @@ impl Chunk {
         println!("{output}");
     }
 
-    fn disassemble_instruction(&self, output: &mut String, offset: usize) -> usize {
+    pub fn disassemble_instruction(&self, output: &mut String, offset: usize) -> usize {
         let _ = write!(output, "{:04} ", offset);
 
         if let Some(instruction) = self.code.get(offset as usize) {
@@ -63,14 +71,23 @@ impl Chunk {
                         .get(*index)
                         .expect("should hold constant at index");
 
-                    let _ = writeln!(output, "OpConstant {:4} '{}'", index, value);
+                    let _ = writeln!(output, "{} {:4} '{}'", OpCode::OpConstant, index, value);
 
                     offset + OpCode::OpConstant.instruction_size()
                 }
 
                 Instruction::Op(OpCode::OpReturn) => {
-                    let _ = writeln!(output, "OpReturn");
+                    let _ = writeln!(output, "{}", OpCode::OpReturn);
                     offset + OpCode::OpReturn.instruction_size()
+                }
+
+                Instruction::Op(OpCode::Unary(u_op)) => {
+                    let _ = writeln!(output, "{}", OpCode::Unary(u_op));
+                    offset + OpCode::Unary(u_op).instruction_size()
+                }
+                Instruction::Op(OpCode::Binary(b_op)) => {
+                    let _ = writeln!(output, "{}", OpCode::Binary(b_op));
+                    offset + OpCode::Binary(b_op).instruction_size()
                 }
 
                 Instruction::Operand(_) => {

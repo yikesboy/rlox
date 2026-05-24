@@ -2,7 +2,7 @@ use std::fmt::{self, Display};
 
 use crate::opcode::OpCode;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Instruction {
     Op(OpCode),
     Operand(usize),
