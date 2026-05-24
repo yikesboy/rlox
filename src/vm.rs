@@ -13,8 +13,6 @@ pub enum InterpreterError {
 
 type InterpreterResult = Result<(), InterpreterError>;
 
-const DEBUG_TRACE_CONDITION: bool = false;
-
 pub struct VM {
     chunk: Chunk,
     ip: usize,
@@ -37,19 +35,8 @@ impl VM {
     fn run(&mut self) -> InterpreterResult {
         loop {
             // TODO: REWORK
-            if DEBUG_TRACE_CONDITION {
-                println!("");
-                for value in self.stack.iter() {
-                    print!("[");
-                    print!(" {value} ");
-                    print!("]");
-                }
-                println!("\n");
-
-                let mut output = String::new();
-                let _ = self.chunk.disassemble_instruction(&mut output, self.ip);
-                println!("{output}");
-            }
+            #[cfg(feature = "debug-trace")]
+            self.trace_execution();
 
             let instruction = *self
                 .chunk
@@ -121,5 +108,20 @@ impl VM {
         self.stack.push(result);
 
         return Ok(());
+    }
+
+    #[cfg(feature = "debug-trace")]
+    fn trace_execution(&self) {
+        println!("");
+        for value in self.stack.iter() {
+            print!("[");
+            print!(" {value} ");
+            print!("]");
+        }
+        println!("\n");
+
+        let mut output = String::new();
+        let _ = self.chunk.disassemble_instruction(&mut output, self.ip);
+        println!("{output}");
     }
 }
