@@ -1,8 +1,10 @@
 use crate::{
     chunk::Chunk,
-    compiler,
+    compiler::Compiler,
     instruction::Instruction,
     opcode::{BinaryOp, OpCode, UnaryOp},
+    parser::Parser,
+    scanner::{ScanError, Scanner},
     value::Value,
 };
 
@@ -10,6 +12,7 @@ use crate::{
 pub enum InterpreterError {
     CompileError,
     RuntimeError,
+    ScannerError(ScanError),
 }
 
 type InterpreterResult = Result<(), InterpreterError>;
@@ -21,22 +24,28 @@ pub struct VM {
 }
 
 impl VM {
-    pub fn new(chunk: Chunk) -> Self {
+    pub fn new() -> Self {
         Self {
-            chunk,
+            chunk: Chunk::new(),
             ip: 0,
             stack: Vec::new(),
         }
     }
 
     pub fn interpret(&mut self, source: String) -> InterpreterResult {
-        //self.run()
-        compiler::compile(source)
+        let scanner = Scanner::new(source);
+        let parser = Parser::new(scanner);
+        let compiler = Compiler::new(parser);
+
+        self.chunk = compiler.compile()?;
+        self.ip = 0;
+        self.stack.clear();
+
+        self.run()
     }
 
     fn run(&mut self) -> InterpreterResult {
         loop {
-            // TODO: REWORK
             #[cfg(feature = "debug-trace")]
             self.trace_execution();
 
