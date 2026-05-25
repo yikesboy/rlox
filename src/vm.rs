@@ -1,5 +1,6 @@
 use crate::{
     chunk::Chunk,
+    compiler,
     instruction::Instruction,
     opcode::{BinaryOp, OpCode, UnaryOp},
     value::Value,
@@ -28,8 +29,9 @@ impl VM {
         }
     }
 
-    pub fn interpret(&mut self) -> InterpreterResult {
-        self.run()
+    pub fn interpret(&mut self, source: String) -> InterpreterResult {
+        //self.run()
+        compiler::compile(source)
     }
 
     fn run(&mut self) -> InterpreterResult {
