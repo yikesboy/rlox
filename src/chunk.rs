@@ -7,7 +7,7 @@ use crate::value::Value;
 pub struct Chunk {
     code: Vec<Instruction>,
     constants: Vec<Value>,
-    lines: Vec<i32>,
+    lines: Vec<usize>,
 }
 
 impl Chunk {
@@ -19,12 +19,12 @@ impl Chunk {
         }
     }
 
-    pub fn write(&mut self, op: OpCode, line: i32) {
+    pub fn write(&mut self, op: OpCode, line: usize) {
         self.code.push(Instruction::Op(op));
         self.lines.push(line)
     }
 
-    pub fn write_constant(&mut self, value: Value, line: i32) {
+    pub fn write_constant(&mut self, value: Value, line: usize) {
         let index = self.constants.len();
         self.constants.push(value);
 
