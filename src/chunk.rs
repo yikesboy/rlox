@@ -1,7 +1,7 @@
 use std::fmt::Write;
 
 use crate::instruction::Instruction;
-use crate::opcode::{OpCode, UnaryOp};
+use crate::opcode::OpCode;
 use crate::value::Value;
 
 pub struct Chunk {
@@ -39,7 +39,7 @@ impl Chunk {
         self.code.get(index)
     }
 
-    pub fn access_constant(&self, index: usize) -> Option<&f32> {
+    pub fn access_constant(&self, index: usize) -> Option<&Value> {
         self.constants.get(index)
     }
 
