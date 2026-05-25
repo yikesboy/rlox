@@ -1,11 +1,11 @@
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Token {
     pub type_: TokenType,
     pub span: Span,
     pub line: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Span {
     pub start: usize,
     pub end: usize,
@@ -17,7 +17,7 @@ impl Span {
     }
 }
 
-#[derive(Debug, PartialEq, PartialOrd)]
+#[derive(Debug, PartialEq, PartialOrd, Copy, Clone)]
 pub enum TokenType {
     LeftParen,
     RightParen,
