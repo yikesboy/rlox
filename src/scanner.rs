@@ -96,9 +96,7 @@ impl Scanner {
             }
             '"' => self.create_string(),
             other => Err(self.error(ScanErrorKind::UnexpectedCharacter(other))),
-        };
-
-        return Err(self.error(ScanErrorKind::UnexpectedCharacter(' ')));
+        }
     }
 
     pub fn lexeme(&self, token: &Token) -> &str {
