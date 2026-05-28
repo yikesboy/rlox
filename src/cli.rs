@@ -1,3 +1,5 @@
+use crate::scanner::ScanError;
+use crate::scanner::ScanErrorKind;
 use crate::vm::InterpreterError;
 use crate::vm::VM;
 use std::env;
@@ -68,5 +70,14 @@ fn run(vm: &mut VM, source: &str) {
 }
 
 fn report_interpreter_error(err: InterpreterError) {
-    eprintln!("{err:?}");
+    match err {
+        InterpreterError::CompileError(msg) => eprintln!("Compile Error: {msg}"),
+        InterpreterError::RuntimeError(msg) => eprintln!("Runtime Error: {msg}"),
+        InterpreterError::ScannerError(kind) => match kind.kind {
+            ScanErrorKind::UnterminatedString => eprintln!("Compile Error: Unterminated String"),
+            ScanErrorKind::UnexpectedCharacter(c) => {
+                eprintln!("Compile Error: Unexpected Character '{c}'")
+            }
+        },
+    }
 }

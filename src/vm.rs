@@ -101,12 +101,12 @@ impl VM {
         let value = self.stack.pop().ok_or(InterpreterError::RuntimeError(""))?;
 
         let result = match opcode {
-            UnaryOp::OpNegate => -value,
-        };
+            UnaryOp::OpNegate => value.neg(),
+        }?;
 
         self.stack.push(result);
 
-        return Ok(());
+        Ok(())
     }
 
     fn binary_op(&mut self, opcode: BinaryOp) -> InterpreterResult {
@@ -114,15 +114,15 @@ impl VM {
         let a = self.stack.pop().ok_or(InterpreterError::RuntimeError(""))?;
 
         let result = match opcode {
-            BinaryOp::OpAdd => a + b,
-            BinaryOp::OpSubtract => a - b,
-            BinaryOp::OpMultiply => a * b,
-            BinaryOp::OpDivide => a / b,
-        };
+            BinaryOp::OpAdd => a.add(b),
+            BinaryOp::OpSubtract => a.sub(b),
+            BinaryOp::OpMultiply => a.mul(b),
+            BinaryOp::OpDivide => a.div(b),
+        }?;
 
         self.stack.push(result);
 
-        return Ok(());
+        Ok(())
     }
 
     #[cfg(feature = "debug-trace")]
