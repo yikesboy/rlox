@@ -48,7 +48,7 @@ impl Parser {
             return Ok(());
         }
 
-        Err(InterpreterError::CompileError)
+        Err(InterpreterError::CompileError("unexpected type: {type_}"))
     }
 
     pub fn expression(&mut self) -> Result<(), InterpreterError> {
@@ -56,7 +56,7 @@ impl Parser {
     }
 
     pub fn number(&mut self) -> Result<(), InterpreterError> {
-        let token = self.previous.ok_or(InterpreterError::CompileError)?;
+        let token = self.previous.ok_or(InterpreterError::CompileError(""))?;
 
         let value: f32 = self
             .scanner
@@ -76,7 +76,7 @@ impl Parser {
     }
 
     pub fn unary(&mut self) -> Result<(), InterpreterError> {
-        let token = self.previous.ok_or(InterpreterError::CompileError)?;
+        let token = self.previous.ok_or(InterpreterError::CompileError(""))?;
         let operator_type = token.type_;
 
         self.parse_precendence(Precedence::Unary)?;
@@ -90,7 +90,7 @@ impl Parser {
     }
 
     pub fn binary(&mut self) -> Result<(), InterpreterError> {
-        let token = self.previous.ok_or(InterpreterError::CompileError)?;
+        let token = self.previous.ok_or(InterpreterError::CompileError(""))?;
         let operator_type = token.type_;
 
         let parse_rule = ParserRule::get_rule(operator_type);
@@ -111,11 +111,11 @@ impl Parser {
     fn parse_precendence(&mut self, precendence: Precedence) -> Result<(), InterpreterError> {
         self.advance()?;
 
-        let token: Token = self.previous.ok_or(InterpreterError::CompileError)?;
+        let token: Token = self.previous.ok_or(InterpreterError::CompileError(""))?;
 
         let prefix = ParserRule::get_rule(token.type_)
             .prefix
-            .ok_or(InterpreterError::CompileError)?;
+            .ok_or(InterpreterError::CompileError(""))?;
 
         prefix(self)?;
 
@@ -128,10 +128,10 @@ impl Parser {
 
             self.advance()?;
 
-            let token = self.previous.ok_or(InterpreterError::CompileError)?;
+            let token = self.previous.ok_or(InterpreterError::CompileError(""))?;
             let infix = ParserRule::get_rule(token.type_)
                 .infix
-                .ok_or(InterpreterError::CompileError)?;
+                .ok_or(InterpreterError::CompileError(""))?;
 
             infix(self)?;
         }

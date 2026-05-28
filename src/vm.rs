@@ -10,8 +10,8 @@ use crate::{
 
 #[derive(Debug)]
 pub enum InterpreterError {
-    CompileError,
-    RuntimeError,
+    CompileError(&'static str),
+    RuntimeError(&'static str),
     ScannerError(ScanError),
 }
 
@@ -52,7 +52,7 @@ impl VM {
             let instruction = *self
                 .chunk
                 .access(self.ip)
-                .ok_or(InterpreterError::RuntimeError)?;
+                .ok_or(InterpreterError::RuntimeError(""))?;
 
             match instruction {
                 Instruction::Op(OpCode::OpReturn) => match self.stack.pop() {
@@ -60,16 +60,16 @@ impl VM {
                         println!("{value}");
                         return Ok(());
                     }
-                    None => return Err(InterpreterError::RuntimeError),
+                    None => return Err(InterpreterError::RuntimeError("")),
                 },
                 Instruction::Op(OpCode::OpConstant) => {
                     let operand = self
                         .chunk
                         .access(self.ip + 1)
-                        .ok_or(InterpreterError::RuntimeError)?;
+                        .ok_or(InterpreterError::RuntimeError(""))?;
 
                     let Instruction::Operand(index) = operand else {
-                        return Err(InterpreterError::RuntimeError);
+                        return Err(InterpreterError::RuntimeError(""));
                     };
 
                     let constant = self
@@ -88,13 +88,17 @@ impl VM {
                     self.binary_op(b_op)?;
                     self.ip += OpCode::Binary(b_op).instruction_size();
                 }
-                Instruction::Operand(_) => return Err(InterpreterError::RuntimeError),
+                Instruction::Operand(_) => {
+                    return Err(InterpreterError::RuntimeError(
+                        "unexpected instruction type",
+                    ));
+                }
             }
         }
     }
 
     fn unary_op(&mut self, opcode: UnaryOp) -> InterpreterResult {
-        let value = self.stack.pop().ok_or(InterpreterError::RuntimeError)?;
+        let value = self.stack.pop().ok_or(InterpreterError::RuntimeError(""))?;
 
         let result = match opcode {
             UnaryOp::OpNegate => -value,
@@ -106,8 +110,8 @@ impl VM {
     }
 
     fn binary_op(&mut self, opcode: BinaryOp) -> InterpreterResult {
-        let b = self.stack.pop().ok_or(InterpreterError::RuntimeError)?;
-        let a = self.stack.pop().ok_or(InterpreterError::RuntimeError)?;
+        let b = self.stack.pop().ok_or(InterpreterError::RuntimeError(""))?;
+        let a = self.stack.pop().ok_or(InterpreterError::RuntimeError(""))?;
 
         let result = match opcode {
             BinaryOp::OpAdd => a + b,
